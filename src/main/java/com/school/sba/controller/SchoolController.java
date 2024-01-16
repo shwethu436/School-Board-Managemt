@@ -15,8 +15,7 @@ public class SchoolController {
 	@Autowired
 	private SchoolService schoolServe;
 	
-	@ResponseBody
-	@RequestMapping(value = "/saveData" ,method = RequestMethod.POST)
+	
 	public String save(@RequestParam int schoolId,@RequestParam String schoolName,@RequestParam String schoolEmail,@RequestParam String schoolAdderess, @RequestParam long schoolContact) {
        return schoolServe.saveData(schoolId, schoolName, schoolEmail, schoolAdderess, schoolContact);
 	}
