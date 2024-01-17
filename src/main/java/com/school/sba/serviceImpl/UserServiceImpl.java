@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService{
 	public ResponseEntity<ResponseStructure<UserResponse>> fetchUser(int userId) {
 		User fetch1 = userRepo.findById(userId).orElseThrow(()-> new UserNotFoundByIdException("user id is not exist"));
 		structure.setStatusCode(HttpStatus.FOUND.value());
-		structure.setMessage("user registered successfully");
+		structure.setMessage("user data fetched successfully");
 		structure.setData(mapToUserResponse(fetch1));
 		return new ResponseEntity<ResponseStructure<UserResponse>>(structure,HttpStatus.FOUND);
 	}
@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService{
 		User fetch1 = userRepo.findById(userId).orElseThrow(()-> new UserNotFoundByIdException("user id is not exist"));
 		userRepo.delete(fetch1);
 		structure.setStatusCode(HttpStatus.OK.value());
-		structure.setMessage("user registered successfully");
+		structure.setMessage("user data deleted successfully");
 		structure.setData(mapToUserResponse(fetch1));
 		return new ResponseEntity<ResponseStructure<UserResponse>>(structure,HttpStatus.OK);
 	}
