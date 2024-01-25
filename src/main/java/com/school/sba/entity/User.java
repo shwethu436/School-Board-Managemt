@@ -1,5 +1,7 @@
 package com.school.sba.entity;
 
+import java.util.List;
+
 import com.school.sba.enums.UserRole;
 
 import jakarta.persistence.Column;
@@ -7,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Max;
@@ -44,5 +47,8 @@ public class User {
 	 
 	 @ManyToOne
 	 private School school;
+	 
+	 @ManyToMany(mappedBy = "users")
+	 private List<AcademicProgram> academicPrograms;
 
 }

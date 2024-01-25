@@ -19,15 +19,15 @@ public class ScheduleController {
 	@Autowired
 	private ScheduleService scheduleServe;
 	
-	@PostMapping("schools/{schoolId}/schedules")
+	@PostMapping("/schools/{schoolId}/schedules")
 	public ResponseEntity<ResponseStructure<ScheduleResponse>> addSchedule(@PathVariable int schoolId,@RequestBody ScheduleRequest request){
 		
 		return scheduleServe.addSchedule(schoolId,request);
 	}
 	
-	@GetMapping("schools/{schoolId}")
-	public ResponseEntity<ResponseStructure<ScheduleResponse>> findSchedule(@PathVariable int scheduleId){
-		return scheduleServe.findSchedule(scheduleId);
+	@GetMapping("/schools/{schoolId}/schedules")
+	public ResponseEntity<ResponseStructure<ScheduleResponse>> findSchedule(@PathVariable int schoolId){
+		return scheduleServe.findSchedule(schoolId);
 	}
 	
 	@PutMapping("schedules/{scheduleId}")

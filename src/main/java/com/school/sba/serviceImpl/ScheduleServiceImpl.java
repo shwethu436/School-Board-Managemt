@@ -50,20 +50,21 @@ public class ScheduleServiceImpl implements ScheduleService{
 				.breakTime(response.getBreakTime())
 				.classHoursPerDay(response.getClassHoursPerDay())
 				.lunchTime(response.getLunchTime())
-				.classHourLengthInMin((int)(response.getClassHourLengthInMin().toMinutes()))
-				.breakLengthInMin((int)(response.getBreakLengthInMin().toMinutes()))
-				.lunchLengthInMin((int)(response.getLunchLengthInMin().toMinutes()))
+				.classHourLengthInMin((int)(Duration.ofMinutes(response.getClassHourLengthInMin().toMinutes()).toMinutes()))
+				.breakLengthInMin((int)(Duration.ofMinutes(response.getBreakLengthInMin().toMinutes()).toMinutes()))
+				.lunchLengthInMin((int)(Duration.ofMinutes(response.getLunchLengthInMin().toMinutes()).toMinutes()))
 				.build();
 	}
 
 	@Override
 	public ResponseEntity<ResponseStructure<ScheduleResponse>> addSchedule(int schoolId, ScheduleRequest request) {
-		return schoolRepo.findById(schoolId).map(u->{
-			if(u.getSchedule()==null) {
-				Schedule schedule = mapToSchedule(request);
-				schedule=scheduleRepo.save(schedule);
-				u.setSchedule(schedule);
-				schoolRepo.save(u);
+		School school= schoolRepo.findById(schoolId)
+				.orElseThrow(()-> new SchoolNotFoundByIdException("school not found"));
+			if(school.getSchedule()==null) {
+				Schedule schedule = scheduleRepo.save(mapToSchedule(request)) ;
+				
+				school.setSchedule(schedule);
+				schoolRepo.save(school);
 				structure.setStatusCode(HttpStatus.CREATED.value());
 				structure.setMessage("scheduled added successfully");
 				structure.setData(mapToScheduleResponse(schedule));
@@ -71,12 +72,16 @@ public class ScheduleServiceImpl implements ScheduleService{
 				
 			}else
 				throw new IllegleREquestException("school can schedule only one schedule");
-		}).orElseThrow(()-> new UserNotFoundByIdException("failed"));
+		
    }
 
 	@Override
-	public ResponseEntity<ResponseStructure<ScheduleResponse>> findSchedule(int scheduleId) {
-		   Schedule schedule = scheduleRepo.findById(scheduleId).orElseThrow(()-> new UserNotFoundByIdException("user not found"));
+	public ResponseEntity<ResponseStructure<ScheduleResponse>> findSchedule(int schoolId) {
+		   School school = schoolRepo.findById(schoolId).orElseThrow(()-> new SchoolNotFoundByIdException("school not found"));
+		   Schedule schedule = school.getSchedule();
+		   int scheduleId=schedule.getScheduleId();
+		   Optional<Schedule> findById= scheduleRepo.findById(scheduleId);
+		   schedule= findById.get();
 			structure.setStatusCode(HttpStatus.FOUND.value());
 			structure.setMessage("scheduled found successfully");
 			structure.setData(mapToScheduleResponse(schedule));

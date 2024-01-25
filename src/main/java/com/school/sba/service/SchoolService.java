@@ -12,6 +12,10 @@ public interface SchoolService {
 
 	
 
-	public ResponseEntity<ResponseStructure<SchoolResponse>> createSchool(int userId,SchoolRequest request);
+	public ResponseEntity<ResponseStructure<SchoolResponse>> createSchool(SchoolRequest request);
+
+	public ResponseEntity<ResponseStructure<SchoolResponse>> updateSchool(int schoolId, SchoolRequest request);
+
+	public ResponseEntity<ResponseStructure<SchoolResponse>> deleteSchool(int schoolId);
 
 }
