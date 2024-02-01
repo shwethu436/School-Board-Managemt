@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.school.sba.entity.School;
 import com.school.sba.entity.User;
 import com.school.sba.enums.UserRole;
-import com.school.sba.exception.IllegleREquestException;
+import com.school.sba.exception.IllegleRequestException;
 import com.school.sba.exception.SchoolNotFoundByIdException;
 
 import com.school.sba.exception.UserNotFoundByIdException;
@@ -65,9 +65,9 @@ public class SchoolServiceImpl implements SchoolService{
 					structure.setData(mapToSchoolResponse(school));
 					return  new ResponseEntity<ResponseStructure<SchoolResponse>>(structure,HttpStatus.CREATED);
 				}else
-					throw new IllegleREquestException("already exist");
+					throw new IllegleRequestException("already exist");
 			}else
-				throw new IllegleREquestException("already exist");
+				throw new IllegleRequestException("already exist");
 		}).orElseThrow(()-> new UserNotFoundByIdException("failed to save school"));
 		
 	}
@@ -90,11 +90,14 @@ public class SchoolServiceImpl implements SchoolService{
 
 	@Override
 	public ResponseEntity<ResponseStructure<SchoolResponse>> deleteSchool(int schoolId) {
-		School delete = schoolRepo.findById(schoolId)
+		School school = schoolRepo.findById(schoolId)
 				.orElseThrow(()-> new SchoolNotFoundByIdException("school not found"));
+		
+		school.setDeleted(true);
+		schoolRepo.save(school);
 		structure.setStatusCode(HttpStatus.OK.value());
 		structure.setMessage("school deleted successfully");
-		structure.setData(mapToSchoolResponse(delete));
+		structure.setData(mapToSchoolResponse(school));
 		return  new ResponseEntity<ResponseStructure<SchoolResponse>>(structure,HttpStatus.OK);
 	}
     

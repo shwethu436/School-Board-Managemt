@@ -17,4 +17,8 @@ public interface UserService {
 
 	ResponseEntity<ResponseStructure<UserResponse>> registerAdmin(UserRequest userRequest);
 
+	ResponseEntity<ResponseStructure<UserResponse>> assignUser(int userId, int programId);
+
+	ResponseEntity<ResponseStructure<UserResponse>> addSubjectToTheTeacher(int subjectId, int userId);
+
 }

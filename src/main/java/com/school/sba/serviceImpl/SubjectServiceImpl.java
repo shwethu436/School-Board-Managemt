@@ -2,6 +2,8 @@ package com.school.sba.serviceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,8 +29,10 @@ public class SubjectServiceImpl implements SubjectService {
 	
 	@Autowired
 	private ResponseStructure<AcademicResponse> structure;
+	
 	@Autowired
 	private ResponseStructure<List<SubjectResponse>> subStructure;
+	
 	@Autowired
 	private AcademicProgramServiceImpl academicServiceImpl;
 	
@@ -57,7 +61,20 @@ public class SubjectServiceImpl implements SubjectService {
 				if(!isPresent)subjects.add(subjectRepo.findBySubjectNames(name)
 						.orElseGet(()-> subjectRepo.save(Subject.builder().subjectNames(name).build())));
 			});
-			program.setSubjects(subjects);
+			
+			//to remove the subjects 
+			List<Subject> toBeRemoved = new ArrayList<Subject>();
+			subjects.forEach(subject ->{
+				boolean isPresent = false;
+				for(String name:request.getSubjectNames()) {
+					isPresent =(subject.getSubjectNames().equalsIgnoreCase(name))?true:false;
+					if(isPresent)break;
+				}
+				if(!isPresent)toBeRemoved.add(subject);
+			});
+			subjects.removeAll(toBeRemoved);
+			
+			program.setSubjects(subjects);  //set subjects list to the academic program
 			academicRepo.save(program);
 			structure.setStatusCode(HttpStatus.CREATED.value());
 			structure.setMessage("updated the subjects list");
@@ -66,6 +83,27 @@ public class SubjectServiceImpl implements SubjectService {
 			return new ResponseEntity<ResponseStructure<AcademicResponse>>(structure,HttpStatus.CREATED);
 		 }).orElseThrow(()-> new AcademicNotFoundException("AcademicProgram not found"));
 	}
+
+
+
+
+	@Override
+	public ResponseEntity<ResponseStructure<List<SubjectResponse>>> findAllSubjects() {
+		List<Subject> findAll = subjectRepo.findAll();
+		List<SubjectResponse> collect= findAll.stream()
+				.map(u->mapToSubjectResponse(u))
+				.collect(Collectors.toList());
+		
+		subStructure.setStatusCode(HttpStatus.FOUND.value());
+		subStructure.setMessage("subjects found successfully");
+		subStructure.setData(collect);
+		return new ResponseEntity<ResponseStructure<List<SubjectResponse>>> (subStructure,HttpStatus.FOUND);
+	}
+
+
+
+
+	
 
 }
 

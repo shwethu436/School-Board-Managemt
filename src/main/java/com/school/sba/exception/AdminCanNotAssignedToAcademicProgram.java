@@ -4,9 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-@AllArgsConstructor
 @Getter
 @Setter
-public class IllegleRequestException extends RuntimeException {
-   private String message;
+@AllArgsConstructor
+public class AdminCanNotAssignedToAcademicProgram extends RuntimeException {
+	private String message;
+
 }

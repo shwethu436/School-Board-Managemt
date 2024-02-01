@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.school.sba.entity.User;
@@ -41,8 +42,19 @@ public class UserController {
 	
 	@DeleteMapping("/users/{userId}")
 	@PreAuthorize("hasAuthority('ADMIN')")
-	public ResponseEntity<ResponseStructure<UserResponse>> deleteUser(@RequestBody int userId){
+	public ResponseEntity<ResponseStructure<UserResponse>> deleteUser(@PathVariable int userId){
 		return userService.deleteUser(userId);
-	} 
-
+	}
+	
+	@PreAuthorize("hasAuthority('ADMIN')")
+	@PutMapping("/academicProgram/{programId}/users/{userId}")
+	public ResponseEntity<ResponseStructure<UserResponse>> assignUser(@PathVariable int userId, @PathVariable int programId){
+		return userService.assignUser(userId,programId);
+	}
+	
+	@PreAuthorize("hasAuthority('ADMIN')")
+	@PutMapping("/subjects/{subjectId}/users/{userId}")
+	public ResponseEntity<ResponseStructure<UserResponse>> addSubjectToTheTeacher(@PathVariable int subjectId,@PathVariable int userId){
+		return userService.addSubjectToTheTeacher(subjectId,userId);
+	}
 }

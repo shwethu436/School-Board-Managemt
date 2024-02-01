@@ -1,7 +1,10 @@
 package com.school.sba.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,8 +27,12 @@ public class AcademicProgramController {
 	}
 	
 	@GetMapping("/schools/{schoolId}/academicPrograms")
-	public ResponseEntity<ResponseStructure<AcademicResponse>>  findProgram(@PathVariable int schoolId){
+	public ResponseEntity<ResponseStructure<List<AcademicResponse>>>  findProgram(@PathVariable int schoolId){
 		return academicServe.findProgram(schoolId);
 	}
-
+	
+	@DeleteMapping("/academicProgram/{programId}")
+	public ResponseEntity<ResponseStructure<AcademicResponse>>  deleteProgram(@PathVariable int programId){
+		return academicServe.deleteProgram(programId);
+	}
 }

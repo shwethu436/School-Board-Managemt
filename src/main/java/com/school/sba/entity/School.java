@@ -3,6 +3,7 @@ package com.school.sba.entity;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,11 +31,16 @@ public class School {
 	private String schoolAddress;
 	private long schoolContact;
 	
+	private boolean isDeleted;
+	
 	@OneToOne
 	private Schedule schedule;
 	
-	@OneToMany(mappedBy = "school")
+	@OneToMany(mappedBy = "school", fetch = FetchType.EAGER)
 	private List<AcademicProgram> aList;
+	
+	@OneToMany(mappedBy = "school", fetch = FetchType.EAGER)
+	private List<User> uList;
 	
 	
 

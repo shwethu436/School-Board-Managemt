@@ -35,11 +35,13 @@ public class SchoolController {
 	}
 	
 	@PutMapping("/schools/{schoolId}")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<ResponseStructure<SchoolResponse>> updateSchool(@PathVariable int schoolId, @RequestBody SchoolRequest request){
 		return schoolServe.updateSchool(schoolId,request);
 	}
 	
 	@DeleteMapping("/schools/{schoolId}")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<ResponseStructure<SchoolResponse>> deleteSchool(@PathVariable int schoolId){
 		return schoolServe.deleteSchool(schoolId);
 	}

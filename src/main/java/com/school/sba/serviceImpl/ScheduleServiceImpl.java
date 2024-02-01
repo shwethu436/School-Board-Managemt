@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.school.sba.entity.Schedule;
 import com.school.sba.entity.School;
-import com.school.sba.exception.IllegleREquestException;
+import com.school.sba.exception.IllegleRequestException;
 import com.school.sba.exception.ScheduleNotFoundException;
 import com.school.sba.exception.SchoolNotFoundByIdException;
 import com.school.sba.exception.UserNotFoundByIdException;
@@ -50,28 +50,32 @@ public class ScheduleServiceImpl implements ScheduleService{
 				.breakTime(response.getBreakTime())
 				.classHoursPerDay(response.getClassHoursPerDay())
 				.lunchTime(response.getLunchTime())
-				.classHourLengthInMin((int)(Duration.ofMinutes(response.getClassHourLengthInMin().toMinutes()).toMinutes()))
-				.breakLengthInMin((int)(Duration.ofMinutes(response.getBreakLengthInMin().toMinutes()).toMinutes()))
-				.lunchLengthInMin((int)(Duration.ofMinutes(response.getLunchLengthInMin().toMinutes()).toMinutes()))
+				.classHourLengthInMin((int)(response.getClassHourLengthInMin().toMinutes()))
+				.breakLengthInMin((int)(response.getBreakLengthInMin().toMinutes()))
+				.lunchLengthInMin((int)(response.getLunchLengthInMin().toMinutes()))
 				.build();
 	}
 
 	@Override
 	public ResponseEntity<ResponseStructure<ScheduleResponse>> addSchedule(int schoolId, ScheduleRequest request) {
-		School school= schoolRepo.findById(schoolId)
-				.orElseThrow(()-> new SchoolNotFoundByIdException("school not found"));
-			if(school.getSchedule()==null) {
-				Schedule schedule = scheduleRepo.save(mapToSchedule(request)) ;
-				
-				school.setSchedule(schedule);
-				schoolRepo.save(school);
+		return schoolRepo.findById(schoolId).map(u ->{
+			if(u.getSchedule()==null) {
+				Schedule schedule = mapToSchedule(request) ;
+				schedule=scheduleRepo.save(schedule);
+				u.setSchedule(schedule);
+				schoolRepo.save(u);
 				structure.setStatusCode(HttpStatus.CREATED.value());
 				structure.setMessage("scheduled added successfully");
 				structure.setData(mapToScheduleResponse(schedule));
 				return new ResponseEntity<ResponseStructure<ScheduleResponse>>(structure,HttpStatus.CREATED) ;
 				
-			}else
-				throw new IllegleREquestException("school can schedule only one schedule");
+			}else {
+				throw new IllegleRequestException("school can schedule only one schedule");
+			}
+			
+		}).orElseThrow(()-> new UserNotFoundByIdException("user not exist"));
+				
+			
 		
    }
 
