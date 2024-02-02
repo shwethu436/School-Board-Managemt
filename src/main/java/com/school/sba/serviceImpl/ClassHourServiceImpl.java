@@ -97,13 +97,16 @@ public class ClassHourServiceImpl implements ClassHourService{
 						LocalDateTime lunchTimeEnd = lunchTimeStart.plusMinutes(schedule.getLunchLengthInMin().toMinutes());
 						LocalDateTime breakTimeStart = LocalDateTime.now().with(schedule.getBreakTime());
 						LocalDateTime breakTimeEnd = breakTimeStart.plusMinutes(schedule.getBreakLengthInMin().toMinutes());
+                        int day =currentTime.getDayOfWeek().getValue();
+                        System.out.println(day);
+						for(int i=1;i<=7-day+7;i++) {
+		                    if (currentTime.getDayOfWeek() != DayOfWeek.SUNDAY) {
 
-						for(int i=1;i<=6;i++) {
 							for(int j=1;j<=classHourPerDay+2;j++) {
 								ClassHour classHour = new ClassHour();
 								LocalDateTime beginsAt = currentTime;
 								LocalDateTime endsAt = beginsAt.plusMinutes(classHourLength);
-
+								 DayOfWeek dayOfWeek = beginsAt.getDayOfWeek();
 								if(!isLunchTime(beginsAt, endsAt, schedule))
 								{
 									if(!isBreakTime(beginsAt, endsAt, schedule))
@@ -129,6 +132,7 @@ public class ClassHourServiceImpl implements ClassHourService{
 									classHour.setClassStatus(ClassStatus.LUNCH_TIME);
 									currentTime = endsAt;
 								}
+								classHour.setDayOfWeek(dayOfWeek);
 								classHour.setAList(academicProgarm);
 								classHourRepo.save(classHour);
 								structure.setStatusCode(HttpStatus.CREATED.value());
@@ -136,6 +140,8 @@ public class ClassHourServiceImpl implements ClassHourService{
 								structure.setData(mapToClassHourResponse(classHour));
 
 							}
+		                }	
+		                    
 							currentTime = currentTime.plusDays(1).with(schedule.getOpensAt());
 							lunchTimeStart = lunchTimeStart.plusDays(1);
 						    lunchTimeEnd = lunchTimeEnd.plusDays(1);
