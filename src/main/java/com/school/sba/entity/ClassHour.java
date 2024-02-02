@@ -1,9 +1,8 @@
 package com.school.sba.entity;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-
 import com.school.sba.enums.ClassStatus;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,6 +19,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+
 public class ClassHour {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +28,8 @@ public class ClassHour {
 	private LocalDateTime endsAt;
 	private int roomNo;
 	private ClassStatus classStatus;
+	
+	private DayOfWeek dayOfWeek;
 	
 	@ManyToOne
 	private AcademicProgram aList;

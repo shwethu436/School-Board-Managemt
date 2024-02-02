@@ -30,5 +30,10 @@ public class ClassHourController {
 		classHourServe.updateClassHour(request);
 		return ResponseEntity.ok("Class hours updated successfully");
 	}
+	
+	@PostMapping("/academic-Program/{programId}/classHours")
+	public ResponseEntity<ResponseStructure<ClassHourResponse>> generateNextWeekClassHour(@PathVariable int programId ){
+		return classHourServe.generateNextWeekClassHour(programId);
+	}
 
 }

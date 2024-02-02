@@ -37,7 +37,7 @@ public class ScheduleJobs {
 	{
 		deleteUserIfDeleted();
 		deleteSchoolIfDeleted();
-		deleteAcademicProgramIfDeleted();
+		//deleteAcademicProgramIfDeleted();
 	}
 
 	private void deleteUserIfDeleted() {
@@ -76,23 +76,23 @@ public class ScheduleJobs {
 	}
 
 
-	private void deleteAcademicProgramIfDeleted()
-	{
-		academicRepo.findAll().stream()
-		.filter(AcademicProgram::isDeleted)
-		.forEach(academicProgram -> 
-		{
-			//Deleting All the Class Hours related to the Academic Program
-			if(!academicProgram.getClassHours().isEmpty())
-				classHourRepo.deleteAll(academicProgram.getClassHours());
+	private void deleteAcademicProgramIfDeleted() {
+	     for (AcademicProgram academicProgram : academicRepo.findAll()) {
+	         if (academicProgram.isDeleted()) {
+	             // Deleting all the Class Hours related to the Academic Program
+	             if (!academicProgram.getClassHours().isEmpty()) {
+	                 classHourRepo.deleteAll(academicProgram.getClassHours());
+	             }
 
-			academicProgram.getUsers().forEach(user -> user.setAcademicPrograms(null));
-			userRepo.saveAll(academicProgram.getUsers());
+	             for (User user : academicProgram.getUsers()) {
+	                 user.setAcademicPrograms(null);
+	             }
+	             userRepo.saveAll(academicProgram.getUsers());
 
-			academicRepo.delete(academicProgram);
-		});
+	             academicRepo.delete(academicProgram);
+	         }
+	     }
+	 }
 
-
-	}
 
 }
