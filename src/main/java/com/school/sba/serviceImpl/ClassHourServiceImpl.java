@@ -103,8 +103,6 @@ public class ClassHourServiceImpl implements ClassHourService{
 								ClassHour classHour = new ClassHour();
 								LocalDateTime beginsAt = currentTime;
 								LocalDateTime endsAt = beginsAt.plusMinutes(classHourLength);
-								
-								DayOfWeek dayOfWeek = beginsAt.getDayOfWeek();
 
 								if(!isLunchTime(beginsAt, endsAt, schedule))
 								{
@@ -113,6 +111,7 @@ public class ClassHourServiceImpl implements ClassHourService{
 										classHour.setBeginsAt(beginsAt);
 										classHour.setEndsAt(endsAt);
 										classHour.setClassStatus(ClassStatus.NOT_SCHEDULED);
+
 										currentTime = endsAt;
 									}
 									else
@@ -120,7 +119,7 @@ public class ClassHourServiceImpl implements ClassHourService{
 										classHour.setBeginsAt(breakTimeStart);
 										classHour.setEndsAt(breakTimeEnd);
 										classHour.setClassStatus(ClassStatus.BREAK_TIME);
-										currentTime = breakTimeEnd;
+										currentTime = endsAt;
 									}
 								}
 								else
@@ -128,10 +127,8 @@ public class ClassHourServiceImpl implements ClassHourService{
 									classHour.setBeginsAt(lunchTimeStart);
 									classHour.setEndsAt(lunchTimeEnd);
 									classHour.setClassStatus(ClassStatus.LUNCH_TIME);
-									currentTime = lunchTimeEnd;
+									currentTime = endsAt;
 								}
-								classHour.setDayOfWeek(dayOfWeek);
-
 								classHour.setAList(academicProgarm);
 								classHourRepo.save(classHour);
 								structure.setStatusCode(HttpStatus.CREATED.value());
@@ -140,6 +137,10 @@ public class ClassHourServiceImpl implements ClassHourService{
 
 							}
 							currentTime = currentTime.plusDays(1).with(schedule.getOpensAt());
+							lunchTimeStart = lunchTimeStart.plusDays(1);
+						    lunchTimeEnd = lunchTimeEnd.plusDays(1);
+						    breakTimeStart = breakTimeStart.plusDays(1);
+						    breakTimeEnd = breakTimeEnd.plusDays(1);
 						}
 					}
 					else 

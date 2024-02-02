@@ -1,6 +1,9 @@
 package com.school.sba.userDTO;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 
 import com.school.sba.enums.ClassStatus;
 
@@ -20,5 +23,7 @@ public class ClassHourResponse {
 	private LocalDateTime endsAt;
 	private int roomNo;
 	private ClassStatus classStatus;
+	private DayOfWeek day;
+	private LocalDate date;
 
 }

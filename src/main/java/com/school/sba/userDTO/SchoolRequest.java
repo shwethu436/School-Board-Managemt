@@ -14,4 +14,5 @@ public class SchoolRequest {
 	private String schoolEmail;
 	private String schoolAddress;
 	private long schoolContact;
+	private String weekOffday;
 }
