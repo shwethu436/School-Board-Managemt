@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.school.sba.entity.AcademicProgram;
 import com.school.sba.entity.ClassHour;
 import com.school.sba.entity.Schedule;
 import com.school.sba.entity.School;
@@ -52,6 +53,9 @@ public class ClassHourServiceImpl implements ClassHourService{
 	
 	@Autowired
 	private ResponseStructure<ClassHourResponse> structure;
+	
+	@Autowired
+	private ResponseStructure<List<ClassHour>> listStructure;
 	
 	public ClassHourResponse mapToClassHourResponse(ClassHour response ) {
 		return ClassHourResponse.builder()
@@ -98,7 +102,7 @@ public class ClassHourServiceImpl implements ClassHourService{
 						LocalDateTime breakTimeStart = LocalDateTime.now().with(schedule.getBreakTime());
 						LocalDateTime breakTimeEnd = breakTimeStart.plusMinutes(schedule.getBreakLengthInMin().toMinutes());
                         int day =currentTime.getDayOfWeek().getValue();
-                        System.out.println(day);
+                        
 						for(int i=1;i<=7-day+7;i++) {
 		                    if (currentTime.getDayOfWeek() != DayOfWeek.SUNDAY) {
 
@@ -210,48 +214,43 @@ public class ClassHourServiceImpl implements ClassHourService{
         return ResponseEntity.ok("Class hours updated successfully.");
 	}
 
+	
 	@Override
-	public ResponseEntity<ResponseStructure<ClassHourResponse>> generateNextWeekClassHour(int programId) {
-        // Get existing ClassHour data from the database
-        List<ClassHour> existingClassHours = classHourRepo.findAll();
+	public ResponseEntity<ResponseStructure<List<ClassHour>>> createClassHourForNextWeek(int programId) {
 
-        // Get the current date and time
-        LocalDateTime currentDate = LocalDateTime.now();
+		AcademicProgram academicProgram = academicRepo.findById(programId).get();
+		List<ClassHour> originalClassHours  = academicProgram.getClassHours();
+		 List<ClassHour> newClassHours = new ArrayList<>();
+		originalClassHours.forEach((cl) -> {
+	        ClassHour createNewClassHour = createNewClassHour(cl);
+	        newClassHours.add(createNewClassHour);
+	    });
 
-        // Generate ClassHour instances for the next 6 days
-        for (int day = 1; day <= 1; day++) {
-        
-            LocalDateTime nextDay = currentDate.plusDays(day);
+	    newClassHours.forEach((hour) -> {
+	        LocalDateTime plusDays = hour.getBeginsAt().plusDays(7);
+	        hour.setBeginsAt(plusDays);
+	        classHourRepo.save(hour);
+	    });
+		listStructure.setData(null);
+		listStructure.setMessage("New Class Hour Created For Next Week");
+		listStructure.setStatusCode(HttpStatus.CREATED.value());
 
-            // Create new instances based on existing data
-            List<ClassHour> newClassHours = existingClassHours.stream()
-                    .map(existingClassHour -> {
-                        ClassHour newClassHour = new ClassHour();
-                        newClassHour.setBeginsAt(nextDay.withHour(existingClassHour.getBeginsAt().getHour())
-                                .withMinute(existingClassHour.getBeginsAt().getMinute()));
-                        newClassHour.setEndsAt(nextDay.withHour(existingClassHour.getEndsAt().getHour())
-                                .withMinute(existingClassHour.getEndsAt().getMinute()));
-                        newClassHour.setRoomNo(existingClassHour.getRoomNo());
-                        newClassHour.setClassStatus(existingClassHour.getClassStatus());
+		return new ResponseEntity<ResponseStructure<List<ClassHour>>>(listStructure, HttpStatus.CREATED);
+	}
 
-                        Subject existingSubject = existingClassHour.getSubject();
-                        if (existingSubject != null) {
-                            // Reattach Subject entity to the persistence context using repository
-                            Subject attachedSubject = subjectRepo.findById(existingSubject.getSubjectId())
-                                    .orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
-                            newClassHour.setSubject(attachedSubject);
-                        }
+	@Override
+	public ClassHour createNewClassHour(ClassHour cl) {
+		ClassHour classHour2 = new ClassHour();
 
-                        newClassHour.setAList(existingClassHour.getAList());
-                        newClassHour.setUser(existingClassHour.getUser());
-                        return newClassHour;
-                    })
-                    .collect(Collectors.toList());
+		classHour2.setAList(cl.getAList());
+		classHour2.setBeginsAt(cl.getBeginsAt());
+		classHour2.setClassStatus(cl.getClassStatus());
+		classHour2.setEndsAt(cl.getEndsAt());
+		classHour2.setRoomNo(cl.getRoomNo());
+		classHour2.setSubject(cl.getSubject());
+		classHour2.setUser(cl.getUser());
 
-            // Save the newly generated ClassHour instances
-            classHourRepo.saveAll(newClassHours);
-        }
-      return null;
+		return classHour2;
 	}
 
 }

@@ -1,6 +1,8 @@
 package com.school.sba.serviceImpl;
 
 import java.time.Duration;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,12 +57,37 @@ public class ScheduleServiceImpl implements ScheduleService{
 				.lunchLengthInMin((int)(response.getLunchLengthInMin().toMinutes()))
 				.build();
 	}
+	
+	private void validateBreaksAndLunch(Schedule scheduleld) {
+
+	LocalTime breakTime =scheduleld.getBreakTime();
+
+	LocalTime lunchTime =scheduleld.getLunchTime();
+
+	LocalTime opensAt =scheduleld.getOpensAt();
+
+	Duration classTime=scheduleld.getClassHourLengthInMin();
+
+	long totalBreakMinutes = opensAt.until(breakTime, ChronoUnit.MINUTES);
+
+	long totalLunchMinutes = opensAt.until(lunchTime, ChronoUnit.MINUTES);
+
+	totalLunchMinutes = totalBreakMinutes-scheduleld.getLunchLengthInMin().toMinutes();
+
+	if(!(totalBreakMinutes%(classTime.toMinutes())==0&&totalLunchMinutes%classTime.toMinutes()==0)) {
+
+	throw new IllegalArgumentException("Break and lunch should start after a class hour ends");
+	}
+
+	}
+
 
 	@Override
 	public ResponseEntity<ResponseStructure<ScheduleResponse>> addSchedule(int schoolId, ScheduleRequest request) {
 		return schoolRepo.findById(schoolId).map(u ->{
 			if(u.getSchedule()==null) {
 				Schedule schedule = mapToSchedule(request) ;
+				validateBreaksAndLunch(schedule);
 				schedule=scheduleRepo.save(schedule);
 				u.setSchedule(schedule);
 				schoolRepo.save(u);
